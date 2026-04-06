@@ -46,3 +46,68 @@ int main() {
 
     return 0;
 }
+
+
+
+#include <stdio.h>
+#include <limits.h>
+
+int main() {
+    int n, i, j, t=0, completed=0;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    int bt[n], rem_bt[n], priority[n], at[n], pid[n];
+    int wt[n], tat[n];
+    for (i = 0; i < n; i++) {
+        pid[i] = i+1;
+        printf("Enter arrival time for process %d: ", i+1);
+        scanf("%d", &at[i]);
+        printf("Enter burst time for process %d: ", i+1);
+        scanf("%d", &bt[i]);
+        printf("Enter priority for process %d (lower number = higher priority): ", i+1);
+        scanf("%d", &priority[i]);
+        rem_bt[i] = bt[i];
+    }
+
+    int prev = -1;
+    printf("\nGantt Chart:\n");
+    while(completed < n) {
+        int idx = -1;
+        int highest = INT_MAX;
+        for (i = 0; i < n; i++) {
+            if (at[i] <= t && rem_bt[i] > 0 && priority[i] < highest) {
+                highest = priority[i];
+                idx = i;
+            }
+        }
+
+        if (idx != -1) {
+            if(prev != idx) printf("| P%d ", pid[idx]);
+            rem_bt[idx]--;
+            t++;
+            prev = idx;
+            if (rem_bt[idx] == 0) {
+                completed++;
+                tat[idx] = t - at[idx];
+                wt[idx] = tat[idx] - bt[idx];
+            }
+        } else {
+            t++; // CPU idle
+        }
+    }
+    printf("|\n");
+
+    float avg_wt=0, avg_tat=0;
+    printf("\nProcess\tArrival\tBurst\tPriority\tWaiting\tTurnaround\n");
+    for(i=0;i<n;i++){
+        printf("P%d\t%d\t%d\t%d\t\t%d\t%d\n", pid[i], at[i], bt[i], priority[i], wt[i], tat[i]);
+        avg_wt += wt[i];
+        avg_tat += tat[i];
+    }
+    printf("\nAverage Waiting Time: %.2f\n", avg_wt/n);
+    printf("Average Turnaround Time: %.2f\n", avg_tat/n);
+
+    return 0;
+}
+
